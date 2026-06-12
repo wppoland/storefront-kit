@@ -9,9 +9,9 @@ use WPPoland\StorefrontKit\Support\Formatter;
 final class WaitlistEngine
 {
     /**
-     * @param callable(): bool $isEnabled
-     * @param callable(): array<string, mixed> $settings
-     * @param callable(string, array<string, mixed>): void $renderTemplate
+     * @param \Closure(): bool $isEnabled
+     * @param \Closure(): array<string, mixed> $settings
+     * @param \Closure(string, array<string, mixed>): void $renderTemplate
      * @param array<string, string> $defaultMessages
      */
     public function __construct(

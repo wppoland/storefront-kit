@@ -1,0 +1,9 @@
+parameters:
+    level: 6
+    treatPhpDocTypesAsCertain: false
+    paths:
+        - src
+    bootstrapFiles:
+        - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
