@@ -15,6 +15,8 @@ URLs. Fixes (CWV, accessibility, bugs) land once and propagate to every consumer
 |---|---|
 | `Waitlist\WaitlistEngine` | Back-in-stock / waitlist: OOS form render, AJAX subscribe, restock email on `woocommerce_product_set_stock_status`. All config (AJAX action, nonce, asset handles/URLs, messages, `isEnabled`/`settings`/`renderTemplate` closures) is constructor-injected — no hard-coded constants. |
 | `Waitlist\WaitlistRepository` | Interface the host plugin implements (`subscribe`, `findPendingByProduct`, `markNotified`). |
+| `Pricing\DynamicPricingEngine` | Quantity/volume tiered pricing: applies the best-matching tier to each cart line on `woocommerce_before_calculate_totals` (idempotent, recomputed from regular price) and renders a server-side price table on the single product page. All config (`templateName`, `labels`, `isEnabled`/`tiers`/`renderTemplate` closures) is constructor-injected — no hard-coded constants. |
+| `Pricing\PriceTier` | Plain value object for one tier (`minQuantity`, `discountPercent`); `fromArray()` normalises a saved option row, `appliesTo()` tests a line quantity. |
 | `Support\Formatter` | `interpolate()` — `{token}` → value substitution for message templates. |
 
 ## Consuming it (the standard pattern)
