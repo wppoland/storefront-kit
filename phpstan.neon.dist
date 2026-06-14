@@ -5,5 +5,7 @@ parameters:
         - src
     bootstrapFiles:
         - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+    scanFiles:
+        - phpstan/constants.php
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
