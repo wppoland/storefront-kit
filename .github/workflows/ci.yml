@@ -25,3 +25,6 @@ jobs:
 
       - name: PHPStan
         run: composer analyse
+
+      - name: PHPUnit
+        run: composer test
