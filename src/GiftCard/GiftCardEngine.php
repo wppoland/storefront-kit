@@ -57,6 +57,7 @@ final class GiftCardEngine
         add_action('woocommerce_review_order_before_payment', [$this, 'renderRedeemField'], 10);
         add_action('woocommerce_checkout_update_order_review', [$this, 'captureRedeemCode'], 10);
         add_action('woocommerce_cart_calculate_fees', [$this, 'applyRedeemDiscount'], 30);
+        add_action('woocommerce_checkout_create_order', [$this, 'persistRedeemCode'], 10, 1);
         add_action('woocommerce_order_status_completed', [$this, 'handleOrderCompleted'], 10, 1);
     }
 
@@ -119,6 +120,24 @@ final class GiftCardEngine
         );
     }
 
+    /**
+     * Persist the session-held redeem code onto the order at creation time so
+     * {@see redeemAppliedCard()} can decrement the balance reliably later — the
+     * WC session is not guaranteed to survive until `order_status_completed`.
+     */
+    public function persistRedeemCode(\WC_Order $order): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        $code = $this->getAppliedCode();
+
+        if ($code !== '') {
+            $order->update_meta_data($this->sessionKey, $code);
+        }
+    }
+
     public function handleOrderCompleted(int $orderId): void
     {
         if (! $this->isEnabled()) {
@@ -130,6 +149,18 @@ final class GiftCardEngine
         if (! $order instanceof \WC_Order) {
             return;
         }
+
+        // Guard against an order being completed more than once (e.g.
+        // completed -> refunded -> completed, or a manual re-trigger), which
+        // would otherwise re-issue cards and decrement balances twice.
+        $processedFlag = $this->sessionKey . '_processed';
+
+        if ($order->get_meta($processedFlag) === 'yes') {
+            return;
+        }
+
+        $order->update_meta_data($processedFlag, 'yes');
+        $order->save();
 
         $this->issueGiftCards($order);
         $this->redeemAppliedCard($order);
@@ -157,9 +188,11 @@ final class GiftCardEngine
             $quantity = max(1, (int) $item->get_quantity());
 
             for ($i = 0; $i < $quantity; $i++) {
-                $code = $this->generateUniqueCode();
-                $this->repository->issue($code, $amount, $recipientEmail, $order->get_id());
-                $this->sendRecipientEmail($recipientEmail, $code, $amount);
+                $code = $this->issueUniqueCard($amount, $recipientEmail, $order->get_id());
+
+                if ($code !== '') {
+                    $this->sendRecipientEmail($recipientEmail, $code, $amount);
+                }
             }
         }
     }
@@ -233,31 +266,45 @@ final class GiftCardEngine
     }
 
     /**
-     * Generate a code that is not already present in the store.
+     * Issue one gift card with a code that is unique even under concurrency.
      *
-     * The host repository owns the table (and should carry a UNIQUE index on the
-     * code column), but the kit owns code generation, so it guards against
-     * collisions here too: each candidate is checked via {@see GiftCardRepository::findByCode()}
-     * before issuing. After a bounded number of attempts the entropy is widened
-     * so a usable code is always returned without an unbounded loop.
+     * Uniqueness is guaranteed at two layers: the kit pre-checks each candidate
+     * via {@see GiftCardRepository::findByCode()} (cheap, filters the common
+     * case), and the host's DB-level UNIQUE index is the authority — if a
+     * concurrent issue inserts the same code between our check and our insert,
+     * {@see GiftCardRepository::issue()} throws
+     * {@see DuplicateGiftCardCodeException} and we regenerate. After a bounded
+     * number of attempts the entropy is widened so a usable code is always
+     * issued without an unbounded loop. Returns the issued code, or '' if no
+     * code could be issued.
      */
-    private function generateUniqueCode(): string
+    private function issueUniqueCard(float $amount, string $recipientEmail, int $orderId): string
     {
-        for ($attempt = 0; $attempt < 5; $attempt++) {
-            $code = $this->generateCode();
+        for ($attempt = 0; $attempt < 8; $attempt++) {
+            $code = $attempt < 5 ? $this->generateCode() : $this->generateWideCode();
 
-            if ($code !== '' && $this->repository->findByCode($code) === null) {
+            if ($code === '' || $this->repository->findByCode($code) !== null) {
+                continue;
+            }
+
+            try {
+                $this->repository->issue($code, $amount, $recipientEmail, $orderId);
+
                 return $code;
+            } catch (DuplicateGiftCardCodeException) {
+                // A concurrent issue won the race for this code; regenerate.
+                continue;
             }
         }
 
+        return '';
+    }
+
+    private function generateWideCode(): string
+    {
         $prefix = (string) ($this->getSettings()['code_prefix'] ?? '');
 
-        do {
-            $code = $this->normalizeCode($prefix . strtoupper(wp_generate_password(20, false, false)));
-        } while ($code === '' || $this->repository->findByCode($code) !== null);
-
-        return $code;
+        return $this->normalizeCode($prefix . strtoupper(wp_generate_password(20, false, false)));
     }
 
     private function sendRecipientEmail(string $recipientEmail, string $code, float $amount): void

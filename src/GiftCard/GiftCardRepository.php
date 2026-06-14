@@ -22,6 +22,15 @@ interface GiftCardRepository
      * Persist a freshly issued gift card. Implementations must store the unique
      * `$code`, the starting `$balance`, the `$recipientEmail` and the source
      * `$orderId`, and return the new row id.
+     *
+     * The table MUST carry a DB-level UNIQUE index on the code column so that a
+     * collision between two concurrent issues is rejected at insert time rather
+     * than relying on a (racy) prior {@see findByCode()} check. When the insert
+     * is rejected by that UNIQUE index, the implementation MUST throw
+     * {@see DuplicateGiftCardCodeException} — {@see GiftCardEngine} catches it
+     * and regenerates the code, guaranteeing uniqueness under concurrency.
+     *
+     * @throws DuplicateGiftCardCodeException When the code already exists.
      */
     public function issue(string $code, float $balance, string $recipientEmail, int $orderId): int;
 
