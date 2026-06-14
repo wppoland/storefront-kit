@@ -137,6 +137,8 @@ final class BadgeEngine
             $badges[] = new Badge($this->label('out_of_stock', $settings, 'out_of_stock_badge_text'), 'neutral');
         }
 
+        $badges = apply_filters('storefront_kit_product_badges', $badges, $product, $context, $settings);
+
         return array_slice($this->dedupe($badges), 0, $this->badgeLimit($context, $settings));
     }
 
