@@ -181,6 +181,10 @@ final class DynamicPricingEngine
 
     private function discountedPrice(float $regularPrice, float $discountPercent): float
     {
+        // Clamp defensively: a host-supplied tier could carry a negative or
+        // out-of-range percent, which would otherwise inflate or invert the price.
+        $discountPercent = max(0.0, min(100.0, $discountPercent));
+
         return round($regularPrice * (1 - $discountPercent / 100), wc_get_price_decimals());
     }
 

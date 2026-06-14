@@ -157,7 +157,7 @@ final class GiftCardEngine
             $quantity = max(1, (int) $item->get_quantity());
 
             for ($i = 0; $i < $quantity; $i++) {
-                $code = $this->generateCode();
+                $code = $this->generateUniqueCode();
                 $this->repository->issue($code, $amount, $recipientEmail, $order->get_id());
                 $this->sendRecipientEmail($recipientEmail, $code, $amount);
             }
@@ -230,6 +230,34 @@ final class GiftCardEngine
         $code = $prefix . $random;
 
         return $this->normalizeCode($code);
+    }
+
+    /**
+     * Generate a code that is not already present in the store.
+     *
+     * The host repository owns the table (and should carry a UNIQUE index on the
+     * code column), but the kit owns code generation, so it guards against
+     * collisions here too: each candidate is checked via {@see GiftCardRepository::findByCode()}
+     * before issuing. After a bounded number of attempts the entropy is widened
+     * so a usable code is always returned without an unbounded loop.
+     */
+    private function generateUniqueCode(): string
+    {
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $code = $this->generateCode();
+
+            if ($code !== '' && $this->repository->findByCode($code) === null) {
+                return $code;
+            }
+        }
+
+        $prefix = (string) ($this->getSettings()['code_prefix'] ?? '');
+
+        do {
+            $code = $this->normalizeCode($prefix . strtoupper(wp_generate_password(20, false, false)));
+        } while ($code === '' || $this->repository->findByCode($code) !== null);
+
+        return $code;
     }
 
     private function sendRecipientEmail(string $recipientEmail, string $code, float $amount): void

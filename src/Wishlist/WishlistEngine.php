@@ -112,6 +112,10 @@ final class WishlistEngine
             return;
         }
 
+        if ($product->is_type('variable')) {
+            return;
+        }
+
         ($this->renderTemplate)($this->loopButtonTemplate, [
             'product' => $product,
             'settings' => $this->getSettings(),
@@ -132,6 +136,10 @@ final class WishlistEngine
 
         if (! $product instanceof \WC_Product) {
             wp_send_json_error(['message' => $this->message('product_not_found_text', 'not_found')], 404);
+        }
+
+        if ($product->is_type('variable')) {
+            wp_send_json_error(['message' => $this->message('variation_required_text', 'variation_required')], 422);
         }
 
         [$userId, $sessionId] = $this->context(true);
@@ -234,18 +242,21 @@ final class WishlistEngine
     }
 
     /**
-     * @return array{product_id: int, in_wishlist: bool, label: string}
+     * @return array{product_id:int,in_wishlist:bool,label:string,requires_variation:bool}
      */
     public function getButtonData(\WC_Product $product): array
     {
-        $inWishlist = $this->isInWishlist($product->get_id());
+        $requiresVariation = $product->is_type('variable');
+        $productId = $product->get_id();
+        $inWishlist = $requiresVariation ? false : $this->isInWishlist($productId);
 
         return [
-            'product_id' => $product->get_id(),
+            'product_id' => $productId,
             'in_wishlist' => $inWishlist,
             'label' => $inWishlist
                 ? $this->message('button_remove_text', 'remove')
                 : $this->message('button_add_text', 'add'),
+            'requires_variation' => $requiresVariation,
         ];
     }
 
@@ -264,7 +275,14 @@ final class WishlistEngine
             return false;
         }
 
-        return is_shop() || is_product() || is_product_taxonomy() || is_account_page();
+        return is_shop() || is_product() || is_product_taxonomy() || is_account_page() || $this->isWishlistPage();
+    }
+
+    private function isWishlistPage(): bool
+    {
+        $pageId = (int) ($this->getSettings()['wishlist_page_id'] ?? 0);
+
+        return $pageId > 0 && is_page($pageId);
     }
 
     /**

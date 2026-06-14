@@ -52,10 +52,17 @@ final class QuickViewEngine
     public function registerHooks(): void
     {
         add_action('wp_enqueue_scripts', [$this, 'enqueueAssets']);
-        add_action('woocommerce_after_shop_loop_item', [$this, 'renderLoopButton'], 21);
         add_action('wp_footer', [$this, 'renderModalShell']);
         add_action('wp_ajax_' . $this->ajaxAction, [$this, 'handleModal']);
         add_action('wp_ajax_nopriv_' . $this->ajaxAction, [$this, 'handleModal']);
+
+        $placement = (string) ($this->getSettings()['loop_button_placement'] ?? 'below');
+
+        if ($placement === 'overlay') {
+            add_action('woocommerce_before_shop_loop_item', [$this, 'renderLoopButton'], 8);
+        } else {
+            add_action('woocommerce_after_shop_loop_item', [$this, 'renderLoopButton'], 21);
+        }
     }
 
     public function enqueueAssets(): void
@@ -124,13 +131,28 @@ final class QuickViewEngine
 
         $product = wc_get_product($productId);
 
-        if (! $product instanceof \WC_Product) {
+        if (! $product instanceof \WC_Product || ! $this->isViewable($product)) {
             wp_send_json_error(['message' => (string) ($this->getSettings()['product_not_found_text'] ?? $this->label('not_found'))], 404);
         }
 
         wp_send_json_success([
             'html' => ($this->renderFragment)($product, $this->getSettings()),
         ]);
+    }
+
+    /**
+     * Guard against serving a quick-view fragment for products the visitor
+     * should not see (drafts, private, pending, trashed). Only publicly
+     * published products are exposed over the unauthenticated AJAX endpoint,
+     * unless the current user can edit the product.
+     */
+    private function isViewable(\WC_Product $product): bool
+    {
+        if (get_post_status($product->get_id()) === 'publish') {
+            return true;
+        }
+
+        return current_user_can('edit_post', $product->get_id());
     }
 
     private function isEnabled(): bool

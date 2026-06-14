@@ -23,6 +23,15 @@ namespace WPPoland\StorefrontKit\Bundle;
 final class ProductBundleEngine
 {
     /**
+     * Per-request memo of resolved bundle discount percent, keyed by parent
+     * product id, so repeated total recalculations don't reload the product and
+     * re-read its meta for every cart line.
+     *
+     * @var array<int, float>
+     */
+    private array $discountPercentCache = [];
+
+    /**
      * @param \Closure(): bool $isEnabled
      * @param \Closure(): array<string, mixed> $settings Resolved settings:
      *        `discount_mode` (`fee`|`per_item`), `show_on_single`.
@@ -245,13 +254,14 @@ final class ProductBundleEngine
 
     private function discountPercentFor(int $parentProductId): float
     {
-        $product = wc_get_product($parentProductId);
-
-        if (! $product instanceof \WC_Product) {
-            return 0.0;
+        if (isset($this->discountPercentCache[$parentProductId])) {
+            return $this->discountPercentCache[$parentProductId];
         }
 
-        return $this->getBundle($product)['discount_percent'];
+        $product = wc_get_product($parentProductId);
+        $percent = $product instanceof \WC_Product ? $this->getBundle($product)['discount_percent'] : 0.0;
+
+        return $this->discountPercentCache[$parentProductId] = $percent;
     }
 
     /**

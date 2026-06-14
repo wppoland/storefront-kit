@@ -84,7 +84,7 @@ final class FeaturedVideoEngine
 
     public function getVideoHtml(\WC_Product $product): string
     {
-        $url = trim((string) $this->meta($product, 'url'));
+        $url = esc_url_raw(trim((string) $this->meta($product, 'url')));
 
         if ($url === '') {
             return '';

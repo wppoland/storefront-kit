@@ -88,6 +88,10 @@ final class WaitlistEngine
             wp_send_json_error(['message' => (string) ($this->getSettings()['product_not_found_text'] ?? $this->defaultMessage('product_not_found'))], 404);
         }
 
+        if ($product->is_type('variable')) {
+            wp_send_json_error(['message' => (string) ($this->getSettings()['variation_required_text'] ?? $this->defaultMessage('variation_required'))], 422);
+        }
+
         if (! $this->shouldRenderForProduct($product)) {
             wp_send_json_error(['message' => (string) ($this->getSettings()['disabled_text'] ?? $this->defaultMessage('disabled'))], 400);
         }
@@ -157,6 +161,10 @@ final class WaitlistEngine
     {
         if (! $this->isEnabled() || ! ($this->getSettings()['show_on_single'] ?? true)) {
             return false;
+        }
+
+        if ($product->is_type('variable')) {
+            return true;
         }
 
         return ! $product->is_in_stock() || $product->get_stock_status() === 'onbackorder';

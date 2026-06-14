@@ -121,7 +121,9 @@ final class DirectCheckoutEngine
             return;
         }
 
-        wp_safe_redirect($this->getRedirectUrl());
+        $redirectUrl = $this->getRedirectUrl();
+        $redirectUrl = (string) apply_filters('wppoland_direct_checkout_redirect_url', $redirectUrl, $product, $this->requestKey);
+        wp_safe_redirect($redirectUrl);
         exit;
     }
 
