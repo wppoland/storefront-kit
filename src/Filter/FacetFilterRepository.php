@@ -9,7 +9,7 @@ namespace WPPoland\StorefrontKit\Filter;
  *
  * Row shape for writes: object_id, facet_slug (index key), value (string), value_num (float|null).
  *
- * @see docs/SIEVE-KIT-ADAPTER.md in plogins monorepo — P1 contract; Sieve IndexRepository is the first implementor.
+ * @see docs/SIEVE-KIT-ADAPTER.md in plogins monorepo, P1 contract; Sieve IndexRepository is the first implementor.
  */
 interface FacetFilterRepository
 {

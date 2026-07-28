@@ -14,7 +14,7 @@ namespace WPPoland\StorefrontKit\Pricing;
  * repeated total calculations.
  *
  * All WooCommerce/text-domain/option specifics are constructor-injected via
- * closures — exactly like {@see \WPPoland\StorefrontKit\Waitlist\WaitlistEngine}.
+ * closures, exactly like {@see \WPPoland\StorefrontKit\Waitlist\WaitlistEngine}.
  * Do NOT hard-code text-domains or option keys here.
  */
 final class DynamicPricingEngine

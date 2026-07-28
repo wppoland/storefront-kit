@@ -27,7 +27,7 @@ interface GiftCardRepository
      * collision between two concurrent issues is rejected at insert time rather
      * than relying on a (racy) prior {@see findByCode()} check. When the insert
      * is rejected by that UNIQUE index, the implementation MUST throw
-     * {@see DuplicateGiftCardCodeException} — {@see GiftCardEngine} catches it
+     * {@see DuplicateGiftCardCodeException}, {@see GiftCardEngine} catches it
      * and regenerates the code, guaranteeing uniqueness under concurrency.
      *
      * @throws DuplicateGiftCardCodeException When the code already exists.

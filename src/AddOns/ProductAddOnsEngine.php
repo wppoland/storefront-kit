@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace WPPoland\StorefrontKit\AddOns;
 
 /**
- * Namespace-neutral per-product add-ons engine (powers the Add-Ons – Product
+ * Namespace-neutral per-product add-ons engine (powers the Add-Ons, Product
  * Options for WooCommerce plugin).
  *
  * An admin defines a list of add-on fields per product (label, type
@@ -13,7 +13,7 @@ namespace WPPoland\StorefrontKit\AddOns;
  * them under the product form, validates and captures the customer's choices
  * into the cart line item, adjusts the line price by the summed deltas, and
  * exposes the selections for cart / order display. Add-ons are stored as product
- * meta — the host owns the meta key and read/write, injected via the
+ * meta, the host owns the meta key and read/write, injected via the
  * `productMeta` closure (no custom table). Everything WooCommerce/
  * text-domain/option/meta specific is constructor-injected, mirroring
  * {@see \WPPoland\StorefrontKit\Badge\BadgeEngine} and
@@ -101,13 +101,9 @@ final class ProductAddOnsEngine
         }
 
         foreach ($this->getAddOns($product) as $index => $addOn) {
-            if (! $addOn['required']) {
-                continue;
-            }
-
             $value = $this->postedValue($index);
 
-            if ($value === '') {
+            if ($addOn['required'] && $value === '') {
                 wc_add_notice(
                     \WPPoland\StorefrontKit\Support\Formatter::interpolate(
                         $this->message('required_error'),
@@ -117,6 +113,40 @@ final class ProductAddOnsEngine
                 );
 
                 return false;
+            }
+
+            if ($value !== '') {
+                $min = (int) ($addOn['min_chars'] ?? 0);
+                $max = (int) ($addOn['max_chars'] ?? 0);
+                $len = mb_strlen($value);
+
+                if ($min > 0 && $len < $min) {
+                    wc_add_notice(
+                        \WPPoland\StorefrontKit\Support\Formatter::interpolate(
+                            $this->message('min_chars_error'),
+                            [
+                                'label' => $addOn['label'],
+                                'min'   => (string) $min,
+                            ]
+                        ),
+                        'error'
+                    );
+                    return false;
+                }
+
+                if ($max > 0 && $len > $max) {
+                    wc_add_notice(
+                        \WPPoland\StorefrontKit\Support\Formatter::interpolate(
+                            $this->message('max_chars_error'),
+                            [
+                                'label' => $addOn['label'],
+                                'max'   => (string) $max,
+                            ]
+                        ),
+                        'error'
+                    );
+                    return false;
+                }
             }
         }
 
@@ -280,6 +310,8 @@ final class ProductAddOnsEngine
                 'required' => (bool) ($entry['required'] ?? false),
                 'price' => (float) ($entry['price'] ?? 0),
                 'options' => $options,
+                'min_chars' => isset($entry['min_chars']) ? max(0, (int) $entry['min_chars']) : 0,
+                'max_chars' => isset($entry['max_chars']) ? max(0, (int) $entry['max_chars']) : 0,
             ];
         }
 

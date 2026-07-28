@@ -11,7 +11,7 @@ namespace WPPoland\StorefrontKit\Filter;
  * Mirrors the intersection contract used by Sieve's FilterService::resolve() without
  * facet models, index keys, or option names.
  *
- * @see docs/SIEVE-KIT-ADAPTER.md in plogins monorepo — P2
+ * @see docs/SIEVE-KIT-ADAPTER.md in plogins monorepo, P2
  */
 final class FacetFilterResolver
 {

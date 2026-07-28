@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace WPPoland\StorefrontKit\Checkout;
 
 /**
- * Namespace-neutral "Buy Now" / direct-checkout engine (powers the Swift –
+ * Namespace-neutral "Buy Now" / direct-checkout engine (powers the Swift, 
  * Quick Buy for WooCommerce plugin).
  *
  * Adds a "Buy Now" button on the single-product page and/or shop loop that adds
  * the product to the cart and redirects straight to the checkout (or cart). The
- * engine is stateless — no DB, no product meta — and every text-domain string,
+ * engine is stateless, no DB, no product meta, and every text-domain string,
  * option key, asset handle/URL and template name is constructor-injected via
  * plain values and closures, exactly like
  * {@see \WPPoland\StorefrontKit\Waitlist\WaitlistEngine} and

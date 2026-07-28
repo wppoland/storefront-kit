@@ -7,14 +7,14 @@ namespace WPPoland\StorefrontKit\Badge;
 /**
  * Namespace-neutral product badge engine for merchandising / conversion hints.
  *
- * Decides which CSS-class-based badges apply to a {@see \WC_Product} — manual
+ * Decides which CSS-class-based badges apply to a {@see \WC_Product}, manual
  * (product meta) plus automatic rules (sale, new, low-stock, bestseller,
- * discount-percent, free-shipping, out-of-stock) — de-duplicates and caps them
+ * discount-percent, free-shipping, out-of-stock), de-duplicates and caps them
  * per render context, then renders CSS-only markup through an injected
  * `renderTemplate` closure. No JavaScript.
  *
  * All WooCommerce/text-domain/option/meta specifics are constructor-injected
- * via closures and arrays — exactly like
+ * via closures and arrays, exactly like
  * {@see \WPPoland\StorefrontKit\Waitlist\WaitlistEngine} and
  * {@see \WPPoland\StorefrontKit\Pricing\DynamicPricingEngine}. Do NOT
  * hard-code text-domains, option keys or meta keys here.
@@ -30,7 +30,7 @@ final class BadgeEngine
      *        `show_on_loop`, `free_shipping_classes`, plus render hints
      *        (`shape`, `uppercase`).
      * @param \Closure(\WC_Product, string): mixed $productMeta Reads a product
-     *        meta value by key — keeps meta-key naming in the host plugin.
+     *        meta value by key, keeps meta-key naming in the host plugin.
      * @param \Closure(string, array<string, mixed>): void $renderTemplate
      * @param array<string, string> $labels Fallback badge labels keyed by rule
      *        (`sale`, `new`, `low_stock`, `bestseller`, `free_shipping`,

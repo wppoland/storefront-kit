@@ -14,7 +14,7 @@ namespace WPPoland\StorefrontKit\Media;
  * zoom/lightbox JS/CSS itself ships in the consuming (Reel) plugin.
  *
  * All WooCommerce/text-domain/option/asset specifics are constructor-injected
- * via closures and strings — exactly like
+ * via closures and strings, exactly like
  * {@see \WPPoland\StorefrontKit\Waitlist\WaitlistEngine}. Do NOT hard-code
  * text-domains, option keys or asset paths here.
  */

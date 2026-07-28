@@ -9,9 +9,9 @@ namespace WPPoland\StorefrontKit\Filter;
  *
  * A single run() drives SSR and AJAX so fragment markup stays identical. All
  * facet config, index access, rendering and search resolution stay in the host
- * via constructor-injected closures — no text domains, option keys or table names.
+ * via constructor-injected closures, no text domains, option keys or table names.
  *
- * @see docs/SIEVE-KIT-ADAPTER.md in plogins monorepo — P2
+ * @see docs/SIEVE-KIT-ADAPTER.md in plogins monorepo, P2
  */
 final class FacetFilterEngine
 {

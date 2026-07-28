@@ -7,7 +7,7 @@ namespace WPPoland\StorefrontKit\Pricing;
 /**
  * A single quantity/volume pricing tier: when a product line reaches
  * {@see $minQuantity}, a {@see $discountPercent} percentage is taken off the
- * regular line price. Tiers are namespace-neutral plain value objects — the
+ * regular line price. Tiers are namespace-neutral plain value objects, the
  * host plugin builds them from its own option storage.
  */
 final class PriceTier

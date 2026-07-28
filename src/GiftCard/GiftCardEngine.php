@@ -7,19 +7,19 @@ namespace WPPoland\StorefrontKit\GiftCard;
 use WPPoland\StorefrontKit\Support\Formatter;
 
 /**
- * Namespace-neutral gift-card / store-credit engine (powers the Gift Cards –
+ * Namespace-neutral gift-card / store-credit engine (powers the Gift Cards, 
  * Store Credit for WooCommerce plugin).
  *
  * A product flagged as a gift card (the host resolves is-gift-card + amount via
  * injected closures) generates a unique code on order completion; the code,
  * balance, recipient email and order id are persisted through the host-supplied
- * {@see GiftCardRepository} (custom table — same delegation as
+ * {@see GiftCardRepository} (custom table, same delegation as
  * {@see \WPPoland\StorefrontKit\Waitlist\WaitlistRepository}) and the recipient
  * is emailed. Redemption: a code field at checkout applies the remaining balance
  * as a negative cart fee, and the balance is decremented on order completion.
  *
  * Everything WooCommerce / text-domain / option specific is constructor-injected
- * via closures and arrays — nothing is hard-coded here. The code field markup
+ * via closures and arrays, nothing is hard-coded here. The code field markup
  * ships in the consuming plugin via the injected `renderField` closure.
  */
 final class GiftCardEngine
@@ -122,7 +122,7 @@ final class GiftCardEngine
 
     /**
      * Persist the session-held redeem code onto the order at creation time so
-     * {@see redeemAppliedCard()} can decrement the balance reliably later — the
+     * {@see redeemAppliedCard()} can decrement the balance reliably later, the
      * WC session is not guaranteed to survive until `order_status_completed`.
      */
     public function persistRedeemCode(\WC_Order $order): void
@@ -270,7 +270,7 @@ final class GiftCardEngine
      *
      * Uniqueness is guaranteed at two layers: the kit pre-checks each candidate
      * via {@see GiftCardRepository::findByCode()} (cheap, filters the common
-     * case), and the host's DB-level UNIQUE index is the authority — if a
+     * case), and the host's DB-level UNIQUE index is the authority, if a
      * concurrent issue inserts the same code between our check and our insert,
      * {@see GiftCardRepository::issue()} throws
      * {@see DuplicateGiftCardCodeException} and we regenerate. After a bounded

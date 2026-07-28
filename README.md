@@ -3,7 +3,7 @@
 A PHP library of reusable WooCommerce storefront features (waitlist / back-in-stock,
 dynamic pricing, product badges, quick view, compare, wishlist, gallery zoom, featured
 video, direct checkout, product add-ons, bundles, gift cards). Each feature is a
-self-contained class with no hard-coded constants — all configuration (text domain,
+self-contained class with no hard-coded constants, all configuration (text domain,
 option keys, asset URLs, labels, templates) is passed in by the host application.
 
 - Namespace: `WPPoland\StorefrontKit\`

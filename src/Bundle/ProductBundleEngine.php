@@ -6,13 +6,13 @@ namespace WPPoland\StorefrontKit\Bundle;
 
 /**
  * Namespace-neutral "frequently bought together" bundle engine (powers the
- * Bundle – Product Bundles for WooCommerce plugin).
+ * Bundle, Product Bundles for WooCommerce plugin).
  *
  * An admin links N product ids to a product plus an optional bundle discount %.
  * The engine renders a bundle box on the product page, adds all linked items
- * (plus the main product) to the cart in one action, and applies the discount —
+ * (plus the main product) to the cart in one action, and applies the discount, 
  * either as a single cart fee or as a per-item price adjustment. The bundle
- * definition is stored as product meta — the host owns the meta key and
+ * definition is stored as product meta, the host owns the meta key and
  * read access, injected via the `productMeta` closure (no custom table).
  *
  * Everything WooCommerce / text-domain / option / meta specific is

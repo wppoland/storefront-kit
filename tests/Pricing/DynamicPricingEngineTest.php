@@ -140,7 +140,7 @@ final class DynamicPricingEngineTest extends TestCase
         // Regular price is stable across calls; a previously-set lower price is
         // ignored because the tier is computed off get_regular_price().
         $product->shouldReceive('get_regular_price')->andReturn('200');
-        // 10% off 200 = 180, both times — never 180 then 162.
+        // 10% off 200 = 180, both times, never 180 then 162.
         $product->shouldReceive('set_price')->twice()->with('180');
 
         $cart = Mockery::mock(WC_Cart::class);

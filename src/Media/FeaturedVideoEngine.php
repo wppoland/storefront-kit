@@ -15,7 +15,7 @@ namespace WPPoland\StorefrontKit\Media;
  * closure. The video JS/CSS itself ships in the consuming (Reel) plugin.
  *
  * All WooCommerce/text-domain/option/meta/asset specifics are
- * constructor-injected via closures, strings and arrays — exactly like
+ * constructor-injected via closures, strings and arrays, exactly like
  * {@see \WPPoland\StorefrontKit\Badge\BadgeEngine}. Do NOT hard-code
  * text-domains, option keys, meta keys or asset paths here.
  */
@@ -27,7 +27,7 @@ final class FeaturedVideoEngine
      *        request (e.g. single product context).
      * @param \Closure(): array<string, mixed> $settings
      * @param \Closure(\WC_Product, string): mixed $productMeta Reads a product
-     *        meta value by key — keeps meta-key naming in the host plugin.
+     *        meta value by key, keeps meta-key naming in the host plugin.
      * @param \Closure(string, array<string, mixed>): void $renderTemplate
      * @param array<string, string> $metaKeys Product meta keys (`url`, `title`).
      * @param array<string, string> $labels Fallback strings keyed by

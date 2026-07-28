@@ -8,7 +8,7 @@ namespace WPPoland\StorefrontKit\Badge;
  * A single resolved product badge: the visible {@see $text} and a
  * CSS-style key ({@see $style}, e.g. `accent`, `warning`, `success`,
  * `danger`, `neutral`) the host theme maps to colours. Namespace-neutral
- * plain value object — no WooCommerce or text-domain coupling.
+ * plain value object, no WooCommerce or text-domain coupling.
  */
 final class Badge
 {
