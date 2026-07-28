@@ -101,9 +101,13 @@ final class ProductAddOnsEngine
         }
 
         foreach ($this->getAddOns($product) as $index => $addOn) {
+            if (! $addOn['required']) {
+                continue;
+            }
+
             $value = $this->postedValue($index);
 
-            if ($addOn['required'] && $value === '') {
+            if ($value === '') {
                 wc_add_notice(
                     \WPPoland\StorefrontKit\Support\Formatter::interpolate(
                         $this->message('required_error'),
@@ -113,40 +117,6 @@ final class ProductAddOnsEngine
                 );
 
                 return false;
-            }
-
-            if ($value !== '') {
-                $min = (int) ($addOn['min_chars'] ?? 0);
-                $max = (int) ($addOn['max_chars'] ?? 0);
-                $len = mb_strlen($value);
-
-                if ($min > 0 && $len < $min) {
-                    wc_add_notice(
-                        \WPPoland\StorefrontKit\Support\Formatter::interpolate(
-                            $this->message('min_chars_error'),
-                            [
-                                'label' => $addOn['label'],
-                                'min'   => (string) $min,
-                            ]
-                        ),
-                        'error'
-                    );
-                    return false;
-                }
-
-                if ($max > 0 && $len > $max) {
-                    wc_add_notice(
-                        \WPPoland\StorefrontKit\Support\Formatter::interpolate(
-                            $this->message('max_chars_error'),
-                            [
-                                'label' => $addOn['label'],
-                                'max'   => (string) $max,
-                            ]
-                        ),
-                        'error'
-                    );
-                    return false;
-                }
             }
         }
 
@@ -310,8 +280,6 @@ final class ProductAddOnsEngine
                 'required' => (bool) ($entry['required'] ?? false),
                 'price' => (float) ($entry['price'] ?? 0),
                 'options' => $options,
-                'min_chars' => isset($entry['min_chars']) ? max(0, (int) $entry['min_chars']) : 0,
-                'max_chars' => isset($entry['max_chars']) ? max(0, (int) $entry['max_chars']) : 0,
             ];
         }
 
